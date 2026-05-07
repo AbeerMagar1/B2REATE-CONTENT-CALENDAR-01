@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2CREATE — Month 01 / Activation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@300;400;500&family=Manrope:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================
+     B2CREATE / DESIGN TOKENS
+     ========================================================== */
+  :root {
+    --void:    #07090E;
+    --surface: #141720;
+    --silver:  #D0CEC9;
+    --mist:    #C4D8DA;
+    --dusk:    #CDBAB2;
+    --silver-50: rgba(208, 206, 201, 0.5);
+    --silver-30: rgba(208, 206, 201, 0.3);
+    --silver-15: rgba(208, 206, 201, 0.15);
+    --silver-08: rgba(208, 206, 201, 0.08);
+    --dusk-50: rgba(205, 186, 178, 0.5);
+    --mist-30: rgba(196, 216, 218, 0.3);
+
+    --display: 'Archivo', 'Helvetica Neue', sans-serif;
+    --serif:   'Fraunces', Georgia, serif;
+    --body:    'Manrope', 'Helvetica Neue', sans-serif;
+    --mono:    'JetBrains Mono', 'Courier New', monospace;
+
+    --grid-pad: clamp(20px, 4vw, 64px);
+    --section-pad: clamp(80px, 14vh, 180px);
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
+
+  body {
+    background: var(--void);
+    color: var(--silver);
+    font-family: var(--body);
+    font-weight: 300;
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection { background: var(--dusk); color: var(--void); }
+
+  /* Subtle grain overlay across whole page */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.04;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  }
+
+  /* ==========================================================
+     LOADING SCREEN
+     ========================================================== */
+  #loader {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: var(--void);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: opacity 0.8s ease 0.3s, visibility 0s linear 1.1s;
+  }
+  #loader.done { opacity: 0; visibility: hidden; }
+  .loader-mark {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: clamp(3rem, 12vw, 8rem);
+    letter-spacing: -0.04em;
+    color: var(--silver);
+    line-height: 1;
+    overflow: hidden;
+  }
+  .loader-mark span {
+    display: inline-block;
+    transform: translateY(110%);
+    animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  }
+  .loader-mark span:nth-child(2) { animation-delay: 0.4s; }
+  @keyframes rise { to { transform: translateY(0); } }
+  .loader-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--silver-50);
+    margin-top: 32px;
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+  .loader-meta span {
+    display: inline-block;
+    transform: translateY(110%);
+    animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+  }
+
+  /* ==========================================================
+     NAV
+     ========================================================== */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    padding: 24px var(--grid-pad);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    mix-blend-mode: difference;
+    pointer-events: none;
+  }
+  nav > * { pointer-events: auto; }
+  .nav-mark {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--silver);
+    text-decoration: none;
+  }
+  .nav-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--silver);
+    text-transform: uppercase;
+  }
+  .nav-meta a {
+    color: var(--silver);
+    text-decoration: none;
+    margin-left: 24px;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+  .nav-meta a:hover { opacity: 1; }
+
+  /* ==========================================================
+     HERO
+     ========================================================== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 120px var(--grid-pad) 60px;
+    overflow: hidden;
+  }
+  #particle-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.55;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 60px;
+    margin-top: auto;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    border-top: 0.5px solid var(--silver-15);
+    padding-top: 16px;
+  }
+  .hero-eyebrow .right { color: var(--dusk); }
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: clamp(2.5rem, 9vw, 8.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    color: var(--silver);
+    text-transform: uppercase;
+  }
+  .hero h1 .italic {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    text-transform: none;
+    color: var(--dusk);
+    letter-spacing: -0.02em;
+  }
+  .hero-bottom {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: end;
+    border-top: 0.5px solid var(--silver-15);
+    padding-top: 24px;
+  }
+  .hero-tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+    color: var(--silver);
+    max-width: 480px;
+    line-height: 1.4;
+  }
+  .hero-tagline em { color: var(--dusk); font-style: italic; }
+  .scroll-cue {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  .scroll-cue::after {
+    content: "";
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(var(--silver-50), transparent);
+    animation: drop 2s ease-in-out infinite;
+  }
+  @keyframes drop {
+    0%, 100% { transform: scaleY(1); transform-origin: top; }
+    50% { transform: scaleY(0.5); }
+  }
+
+  /* ==========================================================
+     SECTION CONTAINERS
+     ========================================================== */
+  section {
+    padding: var(--section-pad) var(--grid-pad);
+    position: relative;
+  }
+  .section-meta {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    align-items: center;
+    border-top: 0.5px solid var(--silver-15);
+    padding-top: 16px;
+    margin-bottom: 80px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+  }
+  .section-meta .num { color: var(--silver); }
+  .section-meta .center { text-align: center; }
+  .section-meta .right { text-align: right; color: var(--dusk); }
+
+  .section-headline {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(2.5rem, 7vw, 6rem);
+    line-height: 0.94;
+    letter-spacing: -0.035em;
+    color: var(--silver);
+    text-transform: uppercase;
+    margin-bottom: 60px;
+    max-width: 1100px;
+  }
+  .section-headline .italic {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    text-transform: none;
+    color: var(--dusk);
+    letter-spacing: -0.02em;
+  }
+
+  /* ==========================================================
+     PREMISE / FRAMING
+     ========================================================== */
+  .framing {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .framing-side {
+    position: sticky;
+    top: 100px;
+  }
+  .framing-side h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--silver-50);
+    margin-bottom: 16px;
+  }
+  .framing-side p {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.5rem;
+    line-height: 1.3;
+    color: var(--dusk);
+  }
+  .framing-body p {
+    font-size: 1.125rem;
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--silver);
+    margin-bottom: 32px;
+    max-width: 640px;
+  }
+  .framing-body p strong {
+    color: var(--silver);
+    font-weight: 500;
+  }
+  .framing-body p em {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--dusk);
+  }
+
+  /* ==========================================================
+     WEEK ARCHITECTURE
+     ========================================================== */
+  .arc {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 0.5px solid var(--silver-15);
+    border-bottom: 0.5px solid var(--silver-15);
+  }
+  .arc-cell {
+    padding: 48px 32px;
+    border-right: 0.5px solid var(--silver-15);
+    position: relative;
+    transition: background 0.4s ease;
+    cursor: pointer;
+  }
+  .arc-cell:last-child { border-right: none; }
+  .arc-cell:hover { background: var(--silver-08); }
+  .arc-cell .week-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .arc-cell .week-name {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 2.25rem;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--silver);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .arc-cell:nth-child(4) .week-name { color: var(--dusk); }
+  .arc-cell .week-job {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--silver);
+    opacity: 0.7;
+    margin-bottom: 24px;
+    min-height: 80px;
+  }
+  .arc-cell .week-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--silver);
+    text-transform: uppercase;
+    border-top: 0.5px solid var(--silver-15);
+    padding-top: 12px;
+  }
+
+  /* ==========================================================
+     POSTS
+     ========================================================== */
+  .posts-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    align-items: center;
+    margin-bottom: 48px;
+    border-top: 0.5px solid var(--silver-15);
+    border-bottom: 0.5px solid var(--silver-15);
+    padding: 16px 0;
+  }
+  .posts-controls-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+  }
+  .filter-group {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: none;
+    border: none;
+    color: var(--silver-50);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 4px 0;
+    border-bottom: 0.5px solid transparent;
+    transition: color 0.3s, border-color 0.3s;
+  }
+  .filter-btn:hover { color: var(--silver); }
+  .filter-btn.active {
+    color: var(--dusk);
+    border-bottom-color: var(--dusk);
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .post-card {
+    position: relative;
+    cursor: pointer;
+    background: var(--surface);
+    overflow: hidden;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+  .post-card[hidden] {
+    display: none;
+  }
+  .post-card:hover {
+    transform: translateY(-4px);
+  }
+  .post-card .post-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: opacity 0.5s, transform 0.6s;
+    opacity: 0.95;
+  }
+  .post-card:hover .post-img {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  .post-card-meta {
+    position: absolute;
+    inset: 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(7, 9, 14, 0.4) 0%, transparent 30%, transparent 60%, rgba(7, 9, 14, 0.85) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .post-card:hover .post-card-meta { opacity: 1; }
+  .post-card-top {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--silver);
+    text-transform: uppercase;
+  }
+  .post-card-bottom {
+    color: var(--silver);
+  }
+  .post-card-bottom .title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.125rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .post-card-bottom .pillar {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--dusk);
+    text-transform: uppercase;
+  }
+  .post-card-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--silver);
+    background: rgba(7, 9, 14, 0.7);
+    padding: 4px 8px;
+    text-transform: uppercase;
+    backdrop-filter: blur(6px);
+  }
+  .post-card.reel .post-card-tag::after {
+    content: " · REEL";
+    color: var(--dusk);
+  }
+
+  /* ==========================================================
+     POST MODAL
+     ========================================================== */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 9, 14, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+    overflow-y: auto;
+  }
+  .modal-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease, visibility 0s linear 0s;
+  }
+  .modal {
+    max-width: 1280px;
+    margin: 60px auto;
+    padding: var(--grid-pad);
+    background: var(--void);
+    border: 0.5px solid var(--silver-15);
+    position: relative;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, opacity 0.5s ease 0.1s;
+  }
+  .modal-backdrop.active .modal {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .modal-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: none;
+    border: 0.5px solid var(--silver-30);
+    color: var(--silver);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .modal-close:hover {
+    background: var(--silver);
+    color: var(--void);
+  }
+  .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 60px;
+    margin-top: 48px;
+  }
+  .modal-img {
+    width: 100%;
+    height: auto;
+    background: var(--surface);
+  }
+  .modal-info h2 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 8px;
+  }
+  .modal-info .modal-hook {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: var(--dusk);
+    margin-bottom: 32px;
+    border-bottom: 0.5px solid var(--silver-15);
+    padding-bottom: 32px;
+  }
+  .modal-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 32px;
+    margin-bottom: 32px;
+  }
+  .modal-meta-grid .meta-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .modal-meta-grid .meta-value {
+    font-family: var(--body);
+    font-size: 0.95rem;
+    color: var(--silver);
+    font-weight: 400;
+  }
+  .modal-section {
+    margin-bottom: 28px;
+  }
+  .modal-section h4 {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .modal-section p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--silver);
+    font-weight: 300;
+  }
+  .modal-meta-top {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+    border-bottom: 0.5px solid var(--silver-15);
+    padding-bottom: 16px;
+  }
+  .modal-meta-top .pill { color: var(--dusk); }
+
+  /* ==========================================================
+     OPERATIONAL NOTES
+     ========================================================== */
+  .ops {
+    background: var(--surface);
+  }
+  .ops-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 80px 60px;
+    margin-top: 60px;
+  }
+  .ops-block h4 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--dusk);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    border-top: 0.5px solid var(--silver-15);
+    padding-top: 16px;
+  }
+  .ops-block h3 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    color: var(--silver);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .ops-list {
+    list-style: none;
+  }
+  .ops-list li {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 0.5px solid var(--silver-15);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--silver);
+  }
+  .ops-list li:last-child { border-bottom: none; }
+  .ops-list .day,
+  .ops-list .num {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--silver-50);
+    padding-top: 4px;
+  }
+
+  .priorities {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .priority-card {
+    border: 0.5px solid var(--silver-15);
+    padding: 24px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .priority-card:hover {
+    border-color: var(--dusk);
+    background: var(--silver-08);
+  }
+  .priority-card .num {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: var(--dusk);
+    margin-bottom: 12px;
+  }
+  .priority-card .label {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: -0.005em;
+    color: var(--silver);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .priority-card .body {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--silver-50);
+  }
+
+  /* ==========================================================
+     INSPIRATION BOARD
+     ========================================================== */
+  .inspirations {
+    border-top: 0.5px solid var(--silver-15);
+  }
+  .insp-section {
+    margin-bottom: 80px;
+  }
+  .insp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 0.5px solid var(--silver-15);
+  }
+  .insp-header h3 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    color: var(--silver);
+    text-transform: uppercase;
+  }
+  .insp-header .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+  }
+  .insp-grid {
+    column-count: 4;
+    column-gap: 16px;
+  }
+  .insp-grid img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 16px;
+    background: var(--surface);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+    opacity: 0.85;
+    cursor: pointer;
+    break-inside: avoid;
+  }
+  .insp-grid img:hover {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+
+  /* ==========================================================
+     FOOTER / CLOSER
+     ========================================================== */
+  .closer {
+    position: relative;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  #closer-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+  .closer-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+  .closer h2 {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: clamp(4rem, 18vw, 22rem);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    color: var(--silver);
+    text-align: center;
+  }
+  .closer h2 .italic {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    text-transform: none;
+    color: var(--dusk);
+    letter-spacing: -0.03em;
+  }
+  .closer-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-top: 80px;
+    border-top: 0.5px solid var(--silver-15);
+    padding-top: 24px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+  }
+  .closer-meta .center { text-align: center; color: var(--dusk); }
+  .closer-meta .right { text-align: right; }
+
+  footer {
+    border-top: 0.5px solid var(--silver-15);
+    padding: 32px var(--grid-pad);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--silver-50);
+    text-transform: uppercase;
+  }
+
+  /* ==========================================================
+     REVEAL ANIMATIONS
+     ========================================================== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-stagger.in-view > * { opacity: 1; transform: translateY(0); }
+  .reveal-stagger.in-view > *:nth-child(1) { transition-delay: 0.0s; }
+  .reveal-stagger.in-view > *:nth-child(2) { transition-delay: 0.05s; }
+  .reveal-stagger.in-view > *:nth-child(3) { transition-delay: 0.1s; }
+  .reveal-stagger.in-view > *:nth-child(4) { transition-delay: 0.15s; }
+  .reveal-stagger.in-view > *:nth-child(5) { transition-delay: 0.2s; }
+  .reveal-stagger.in-view > *:nth-child(n+6) { transition-delay: 0.25s; }
+
+  /* ==========================================================
+     RESPONSIVE
+     ========================================================== */
+  @media (max-width: 1024px) {
+    .framing { grid-template-columns: 1fr; gap: 40px; }
+    .framing-side { position: static; }
+    .arc { grid-template-columns: repeat(2, 1fr); }
+    .arc-cell:nth-child(2) { border-right: none; }
+    .arc-cell:nth-child(1), .arc-cell:nth-child(2) { border-bottom: 0.5px solid var(--silver-15); }
+    .priorities { grid-template-columns: repeat(2, 1fr); }
+    .ops-grid { grid-template-columns: 1fr; gap: 60px; }
+    .modal-grid { grid-template-columns: 1fr; gap: 32px; }
+    .insp-grid { column-count: 3; }
+  }
+  @media (max-width: 720px) {
+    .hero-bottom { grid-template-columns: 1fr; }
+    .scroll-cue { align-items: flex-start; text-align: left; }
+    .arc { grid-template-columns: 1fr; }
+    .arc-cell { border-right: none; border-bottom: 0.5px solid var(--silver-15); }
+    .priorities { grid-template-columns: 1fr 1fr; }
+    .modal-meta-grid { grid-template-columns: 1fr; }
+    .closer-meta { grid-template-columns: 1fr; gap: 8px; text-align: left; }
+    .closer-meta .center, .closer-meta .right { text-align: left; }
+    nav { padding: 16px var(--grid-pad); }
+    .nav-meta a { margin-left: 12px; }
+    .insp-grid { column-count: 2; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==========================================================
+     LOADER
+     ========================================================== -->
+<div id="loader">
+  <div class="loader-mark"><span>B</span><span>2</span></div>
+  <div class="loader-meta"><span>NOTHING IS EVER EMPTY. ONLY STILL.</span></div>
+</div>
+
+<!-- ==========================================================
+     NAV
+     ========================================================== -->
+<nav>
+  <a href="#" class="nav-mark">B2</a>
+  <div class="nav-meta">
+    <a href="#framing">PREMISE</a>
+    <a href="#arc">ARC</a>
+    <a href="#posts">POSTS</a>
+    <a href="#refs">REFERENCES</a>
+  </div>
+</nav>
+
+<!-- ==========================================================
+     HERO
+     ========================================================== -->
+<header class="hero">
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span>B2CREATE / MONTH 01 / ACTIVATION</span>
+      <span class="right">04 WEEKS / 20 POSTS</span>
+    </div>
+    <h1>
+      Nothing<br>
+      is ever<br>
+      empty.<br>
+      <span class="italic">Only still.</span>
+    </h1>
+  </div>
+
+  <div class="hero-bottom">
+    <p class="hero-tagline">
+      A regional brand consultancy operating at institutional scale across MENA. The studio's role is not to build, but to <em>activate</em>.
+    </p>
+    <div class="scroll-cue">
+      <span>SCROLL</span>
+    </div>
+  </div>
+</header>
+
+<!-- ==========================================================
+     FRAMING
+     ========================================================== -->
+<section id="framing">
+  <div class="section-meta reveal">
+    <span class="num">01 / 04</span>
+    <span class="center">PREMISE</span>
+    <span class="right">PREPARED BY ABEER MAGAR</span>
+  </div>
+
+  <h2 class="section-headline reveal">
+    Brands are not broken.<br>
+    They are <span class="italic">unstructured.</span>
+  </h2>
+
+  <div class="framing">
+    <div class="framing-side reveal">
+      <h3>STRATEGIC PREMISE</h3>
+      <p>"The studio's role is not to build, but to activate."</p>
+    </div>
+    <div class="framing-body reveal">
+      <p>
+        B2CREATE is not a creative agency in the conventional sense. It is a regional brand consultancy operating at institutional scale across <strong>Beirut, Cairo, KSA, and Oman</strong>. The studio's core idea reframes the agency-client relationship.
+      </p>
+      <p>
+        <strong>Month 1's job:</strong> install the premise. Establish institutional weight. Open the conversation with corporate decision-makers in MENA. Convert the studio's internal discipline (six values, six principles, five-stage process) into external trust signals.
+      </p>
+      <p>
+        The four weeks mirror the studio's own narrative arc: <em>from dispersed to inevitable</em>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     WEEK ARCHITECTURE
+     ========================================================== -->
+<section id="arc">
+  <div class="section-meta reveal">
+    <span class="num">02 / 04</span>
+    <span class="center">ARCHITECTURE</span>
+    <span class="right">FOUR ACTS / ONE STORY</span>
+  </div>
+
+  <h2 class="section-headline reveal">
+    From dispersed<br>
+    to <span class="italic">inevitable.</span>
+  </h2>
+
+  <div class="arc reveal-stagger">
+    <div class="arc-cell" data-week="1">
+      <div class="week-num">WK 01 · MON–FRI</div>
+      <div class="week-name">Stillness</div>
+      <div class="week-job">Install the premise. Why "still" is not "empty."</div>
+      <div class="week-count">5 POSTS · 1 REEL</div>
+    </div>
+    <div class="arc-cell" data-week="2">
+      <div class="week-num">WK 02 · MON–FRI</div>
+      <div class="week-name">Structure</div>
+      <div class="week-job">The thinking made visible. Show the brief, not just the result.</div>
+      <div class="week-count">5 POSTS · 1 REEL</div>
+    </div>
+    <div class="arc-cell" data-week="3">
+      <div class="week-num">WK 03 · MON–FRI</div>
+      <div class="week-name">Activation</div>
+      <div class="week-job">The work made visible. Range across sectors and geographies.</div>
+      <div class="week-count">5 POSTS · 1 REEL</div>
+    </div>
+    <div class="arc-cell" data-week="4">
+      <div class="week-num">WK 04 · MON–FRI</div>
+      <div class="week-name">Continuity</div>
+      <div class="week-job">Closing the loop. What it means to stay past launch.</div>
+      <div class="week-count">5 POSTS · 1 REEL</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     POSTS
+     ========================================================== -->
+<section id="posts">
+  <div class="section-meta reveal">
+    <span class="num">03 / 04</span>
+    <span class="center">THE 20 POSTS</span>
+    <span class="right">CLICK ANY POST TO EXPAND</span>
+  </div>
+
+  <h2 class="section-headline reveal">
+    The work,<br>
+    <span class="italic">made visible.</span>
+  </h2>
+
+  <div class="posts-controls reveal">
+    <span class="posts-controls-label">FILTER BY WEEK</span>
+    <div class="filter-group" id="week-filter">
+      <button class="filter-btn active" data-filter="all">ALL · 20</button>
+      <button class="filter-btn" data-filter="1">WK 01 · STILLNESS</button>
+      <button class="filter-btn" data-filter="2">WK 02 · STRUCTURE</button>
+      <button class="filter-btn" data-filter="3">WK 03 · ACTIVATION</button>
+      <button class="filter-btn" data-filter="4">WK 04 · CONTINUITY</button>
+    </div>
+  </div>
+
+  <div class="posts-grid reveal-stagger" id="posts-grid">
+    <!-- Posts injected by JS -->
+  </div>
+</section>
+
+<!-- ==========================================================
+     OPERATIONAL NOTES
+     ========================================================== -->
+<section class="ops" id="ops">
+  <div class="section-meta reveal">
+    <span class="num">04 / 04</span>
+    <span class="center">OPERATIONAL NOTES</span>
+    <span class="right">CADENCE / PRIORITIES / DISCIPLINE</span>
+  </div>
+
+  <h2 class="section-headline reveal">
+    The system<br>
+    that <span class="italic">holds.</span>
+  </h2>
+
+  <div class="ops-grid">
+    <div class="ops-block reveal">
+      <h4>WEEKLY CADENCE</h4>
+      <h3>Day by day</h3>
+      <ul class="ops-list">
+        <li><span class="day">MON</span><span>LinkedIn. Heaviest thinking, strategic carousel.</span></li>
+        <li><span class="day">TUE</span><span>Instagram. Portfolio anchor.</span></li>
+        <li><span class="day">WED</span><span>LinkedIn. Long-form thinking.</span></li>
+        <li><span class="day">THU</span><span>Cross-post. Process or culture reel.</span></li>
+        <li><span class="day">FRI</span><span>Lighter close. Culture, hero, or manifesto.</span></li>
+      </ul>
+    </div>
+    <div class="ops-block reveal">
+      <h4>WHAT DOES NOT BELONG</h4>
+      <h3>Off-brand for Month 1</h3>
+      <ul class="ops-list">
+        <li><span class="num">×</span><span>Trend-led content. Sounds, formats, holidays.</span></li>
+        <li><span class="num">×</span><span>Generic agency content. Inspiration quotes, designer memes.</span></li>
+        <li><span class="num">×</span><span>Sales-led posts. "Get in touch," "DM us."</span></li>
+        <li><span class="num">×</span><span>Founder-personality content. Establish weight before faces.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ops-block reveal" style="margin-top: 80px;">
+    <h4>PRODUCTION PRIORITIES</h4>
+    <h3>The four assets that anchor the system</h3>
+    <div class="priorities">
+      <div class="priority-card">
+        <div class="num">04</div>
+        <div class="label">Particles converge</div>
+        <div class="body">Defines visual language for every reel that follows.</div>
+      </div>
+      <div class="priority-card">
+        <div class="num">06</div>
+        <div class="label">Six principles</div>
+        <div class="body">Sets editorial typography system for all carousels.</div>
+      </div>
+      <div class="priority-card">
+        <div class="num">11</div>
+        <div class="label">Five sectors</div>
+        <div class="body">Requires sector-by-sector image curation.</div>
+      </div>
+      <div class="priority-card">
+        <div class="num">20</div>
+        <div class="label">Set in motion</div>
+        <div class="body">Must visually echo Post 01 to bookend the month.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     INSPIRATION BOARD
+     ========================================================== -->
+<section class="inspirations" id="refs">
+  <div class="section-meta reveal">
+    <span class="num">/</span>
+    <span class="center">INSPIRATION BOARD</span>
+    <span class="right">CURATED REFERENCES</span>
+  </div>
+
+  <h2 class="section-headline reveal">
+    The peer set.<br>
+    <span class="italic">Not the agency category.</span>
+  </h2>
+
+  <div class="insp-section reveal">
+    <div class="insp-header">
+      <h3>WOLFF OLINS</h3>
+      <span class="label">CASE STUDY REGISTER</span>
+    </div>
+    <div class="insp-grid" data-insp="wolff_olins"></div>
+  </div>
+
+  <div class="insp-section reveal">
+    <div class="insp-header">
+      <h3>PENTAGRAM</h3>
+      <span class="label">EDITORIAL DISCIPLINE</span>
+    </div>
+    <div class="insp-grid" data-insp="pentagram"></div>
+  </div>
+
+  <div class="insp-section reveal">
+    <div class="insp-header">
+      <h3>STUDIO DUMBAR</h3>
+      <span class="label">TYPOGRAPHIC SYSTEM</span>
+    </div>
+    <div class="insp-grid" data-insp="studio_dumbar"></div>
+  </div>
+
+  <div class="insp-section reveal">
+    <div class="insp-header">
+      <h3>MANIFESTO POSTS</h3>
+      <span class="label">PINTEREST / VISUAL BOARD</span>
+    </div>
+    <div class="insp-grid" data-insp="manifesto"></div>
+  </div>
+
+  <div class="insp-section reveal">
+    <div class="insp-header">
+      <h3>MAGAZINE POSTS</h3>
+      <span class="label">PINTEREST / VISUAL BOARD</span>
+    </div>
+    <div class="insp-grid" data-insp="magazine"></div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     CLOSER
+     ========================================================== -->
+<section class="closer">
+  <canvas id="closer-canvas"></canvas>
+  <div class="closer-content">
+    <h2>Set in<br><span class="italic">motion.</span></h2>
+    <div class="closer-meta">
+      <span>B2CREATE / END OF MONTH 01</span>
+      <span class="center">FROM DISPERSED TO INEVITABLE</span>
+      <span class="right">NEXT — MONTH 02 / RANGE</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>B2CREATE © 2026</span>
+  <span>BEIRUT · CAIRO · RIYADH · MUSCAT</span>
+</footer>
+
+<!-- ==========================================================
+     POST MODAL (single instance, reused)
+     ========================================================== -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modal-close">CLOSE [ESC]</button>
+    <div class="modal-meta-top">
+      <span id="m-num">POST 00 / MONDAY</span>
+      <span class="pill" id="m-state">STATE 1</span>
+      <span id="m-platform">LINKEDIN</span>
+    </div>
+    <div class="modal-grid">
+      <img class="modal-img" id="m-img" src="" alt="">
+      <div class="modal-info">
+        <h2 id="m-title">Title</h2>
+        <p class="modal-hook" id="m-hook">Hook</p>
+        <div class="modal-meta-grid">
+          <div>
+            <div class="meta-label">PILLAR</div>
+            <div class="meta-value" id="m-pillar">—</div>
+          </div>
+          <div>
+            <div class="meta-label">FORMAT</div>
+            <div class="meta-value" id="m-format">—</div>
+          </div>
+          <div>
+            <div class="meta-label">WEEK</div>
+            <div class="meta-value" id="m-week">—</div>
+          </div>
+          <div>
+            <div class="meta-label">DAY</div>
+            <div class="meta-value" id="m-day">—</div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <h4>CONTENT SUMMARY</h4>
+          <p id="m-summary">—</p>
+        </div>
+        <div class="modal-section">
+          <h4>VISUAL DIRECTION</h4>
+          <p id="m-visual">—</p>
+        </div>
+        <div class="modal-section">
+          <h4>STRATEGIC OBJECTIVE</h4>
+          <p id="m-objective">—</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================
+     SCRIPTS
+     ========================================================== -->
+<script>
+// ============================================================
+// POST DATA - All 20 posts with full content
+// ============================================================
+const POSTS = [
+  // WEEK 1 - STILLNESS
+  { n: 1, day: 'MON', week: 1, weekName: 'STILLNESS', img: 'img1', type: 'static',
+    title: 'Nothing is ever empty. Only still.',
+    hook: "Most brands aren't broken. They're paused.",
+    platform: 'LinkedIn + Instagram', pillar: 'Thinking', format: 'Static / Manifesto', state: 'STATE 1 — RAW',
+    summary: 'A short manifesto-style post introducing the studio\'s core premise. Argues that the language of "broken brands" is wrong — it casts the agency as a fixer of damage. The reality is most enterprise brands have all the components of identity already; what\'s missing is the structure that puts them into motion. Closes with: "We don\'t build brands. We activate them."',
+    visual: 'State 1: Raw. Black field. Fine sand or particle texture as ground. The sentence "NOTHING IS EVER EMPTY. ONLY STILL." set in tight grotesque, large, centered. The B2 mark sits small in a corner. No flourish. Editorial.',
+    objective: 'Plant the brand thesis in the feed on day one. Establishes the conceptual territory the entire month operates within. The audience leaves with a sentence they can\'t unhear.'
+  },
+  { n: 2, day: 'TUE', week: 1, weekName: 'STILLNESS', img: 'img2', type: 'carousel',
+    title: 'Before the brand moved',
+    hook: 'What does an institutional brand look like before it has structure?',
+    platform: 'Instagram primary', pillar: 'Portfolio', format: 'Carousel · 6 slides', state: 'STATE 1 → STATE 2',
+    summary: 'A carousel that shows a brand at its "still" state — fragments, inconsistencies, dispersed marks across touchpoints. The second half shows the same brand after the system was applied. Not a before-and-after redesign cliché — a thesis carousel. Slide 2: the dispersed state. Slide 3: the audit finding. Slide 4: the strategic intervention. Slide 5: the system in use across surfaces. Slide 6: "From dispersed to inevitable."',
+    visual: 'State 1 → State 2. Monochrome stills. Grid lines emerging across slides. Real artefacts photographed top-down, not mockups. Editorial caps for slide labels.',
+    objective: 'First proof point of the month. Demonstrates the premise is not abstract — it produces work.'
+  },
+  { n: 3, day: 'WED', week: 1, weekName: 'STILLNESS', img: 'img3', type: 'static',
+    title: 'The case against the rebrand',
+    hook: "Most companies don't need a rebrand. They need a structure.",
+    platform: 'LinkedIn primary', pillar: 'Thinking', format: 'Text post + Static', state: 'STATE 2',
+    summary: 'A short, opinionated long-form post arguing that the word "rebrand" is overused and frequently misdiagnoses the problem. A real rebrand is rare. Most engagements are clarification work — making explicit what was already implicit. The post offers three diagnostic questions a CMO can use before commissioning a rebrand: (1) Has the brand drifted, or has the market? (2) What changed internally that the brand hasn\'t caught up with? (3) Are you re-naming the problem to justify the budget?',
+    visual: 'Black field, single line — "Most rebrands aren\'t rebrands." — set in serif, generous space. State 2.',
+    objective: 'Establish thought-leadership voice early. Hand the CMO a tool they can use in their next budget conversation. Trust before sale.'
+  },
+  { n: 4, day: 'THU', week: 1, weekName: 'STILLNESS', img: 'img6', type: 'reel',
+    title: 'Particles converge',
+    hook: 'Every brand begins as particles.',
+    platform: 'Instagram + LinkedIn', pillar: 'Process', format: 'Reel · 20–25s', state: 'STATE 1 → STATE 3',
+    summary: 'A short, no-talking-head reel that visualises the studio\'s own process metaphor: from particles in motion, to alignment, to a fixed system. The five process stages — Discovery, Strategy, Identity, Execution, Continuity — appear as kinetic text against an evolving particle field. Closes on the line: "From dispersed to inevitable."',
+    visual: 'State 1 → State 3. Monochrome particle simulation (sand/dust). Grid emerges over the particles in the second act. Tight grotesque typography. Ambient instrumental, no music drop.',
+    objective: 'Translate the brand philosophy into motion. The first content piece that visualises what B2CREATE means by "set in motion." Highest creative-signal post of Week 1.'
+  },
+  { n: 5, day: 'FRI', week: 1, weekName: 'STILLNESS', img: 'img7', type: 'static',
+    title: 'Two studios. Two markets. One conversation.',
+    hook: 'The work happens in two cities, not one.',
+    platform: 'LinkedIn', pillar: 'Culture', format: 'Static · Editorial photograph', state: 'STATE 1',
+    summary: 'A short post introducing the operational structure: Beirut HQ, Cairo HQ, on-the-ground engagement in Riyadh, Jeddah, Muscat. Frames the regional structure not as logistics but as a strategic choice. "Regional proximity, not remote partnership. Multilingual from concept to copy — EN, AR, FR."',
+    visual: 'One composed editorial photograph — a desk artefact, a mark in production, or a window detail from one of the two studios. Monochrome or muted. Optional small map element. Grid-led caption layout. State 1.',
+    objective: 'Establish institutional weight and geographic credibility. Distinguishes B2CREATE from Cairo-only studios in the audience\'s mind — important for KSA and regional CMOs.'
+  },
+  // WEEK 2 - STRUCTURE
+  { n: 6, day: 'MON', week: 2, weekName: 'STRUCTURE', img: 'img8', type: 'carousel',
+    title: 'Six principles. No exceptions.',
+    hook: 'Six things every engagement at B2CREATE is held to. Regardless of sector. Regardless of scale.',
+    platform: 'LinkedIn primary', pillar: 'Thinking', format: 'Carousel · 7 slides', state: 'STATE 2',
+    summary: 'One slide per principle, drawn directly from the company profile. (1) Clear thinking before creating. (2) Strategy with purpose. (3) Distinctive brand presence. (4) Built for real use. (5) Consistency across every touchpoint. (6) Flexibility & adaptability. Each slide pairs the principle with a one-line explanation that makes it operational, not aspirational. Final slide: "These are not values. They are the floor."',
+    visual: 'State 2: Intervention. Pure typography on monochrome. Each slide a number + statement in tight grotesque. Grid system visible. No imagery.',
+    objective: 'Convert the studio\'s internal discipline into an external trust signal. CMOs reading this should think: "This studio has standards I don\'t have to enforce."'
+  },
+  { n: 7, day: 'TUE', week: 2, weekName: 'STRUCTURE', img: 'img9', type: 'carousel',
+    title: 'What survives a decade',
+    hook: 'We measure ourselves by the work that survives a decade.',
+    platform: 'Instagram primary', pillar: 'Portfolio', format: 'Carousel · 5 slides', state: 'STATE 2 / 3',
+    summary: 'A portfolio carousel pulling work from one of the studio\'s longest-standing engagements (Masarco or Orascom). Shows the original system, then the system in use across multiple touchpoints over time. Argument: the brand was not redesigned every two years. It was governed. Final slide: "Identities still in use. Still recognisable. Still doing the job they were built for."',
+    visual: 'State 2 / State 3. Editorial spreads of brand work across years and surfaces — print, signage, digital, document. Monochrome dominant with controlled use of the client\'s brand colour.',
+    objective: 'Counter-position against the rebrand-cycle agencies. Anchor B2CREATE as the studio for clients who plan in decades, not quarters.'
+  },
+  { n: 8, day: 'WED', week: 2, weekName: 'STRUCTURE', img: 'img10', type: 'static',
+    title: 'Identity is infrastructure',
+    hook: 'Branding is not a one-time design task.',
+    platform: 'LinkedIn', pillar: 'Thinking', format: 'Text post + Quote card', state: 'STATE 2',
+    summary: 'A short opinion post unpacking the studio\'s belief that identity is infrastructure, not artwork. Identity gets used, stressed, scaled, handed over. It must work for procurement, for legal, for HR onboarding, for signage tenders. The reframing — from artwork to infrastructure — changes the brief, the budget, and the team. Closes with: "The first launch is the smallest moment."',
+    visual: 'Single static. Dark field, sentence "Identity is infrastructure" set centered in serif, with grid lines beneath. State 2.',
+    objective: 'Educate the buyer. Reframes how a CMO should brief and budget brand work. Positions B2CREATE on the right side of that reframing.'
+  },
+  { n: 9, day: 'THU', week: 2, weekName: 'STRUCTURE', img: 'img11', type: 'reel',
+    title: 'The brief before the brief',
+    hook: 'Our first deliverable is always a clearer brief.',
+    platform: 'Instagram + LinkedIn', pillar: 'Process', format: 'Reel · 15–20s', state: 'STATE 1 → STATE 2',
+    summary: 'A short reel showing the studio\'s discovery phase artefacts — interview notes, stakeholder maps, one-page premises, hand-marked documents. No talking heads. The argument: before any visual work begins, the brief itself is rewritten. The deliverable of Discovery is clarity, not direction. End card: "Discovery → Strategy → Identity → Execution → Continuity."',
+    visual: 'State 1 → State 2. Tactile, real documents on a desk. Hand-marked. Top-down editorial photography. Kinetic captions overlaying. Monochrome with annotation marks in single accent.',
+    objective: 'Make the invisible work visible. CMOs see craft they can show internally to justify scope.'
+  },
+  { n: 10, day: 'FRI', week: 2, weekName: 'STRUCTURE', img: 'img12', type: 'static',
+    title: 'What a quiet studio looks like',
+    hook: 'Restraint is the loudest signal in our work.',
+    platform: 'Instagram', pillar: 'Culture', format: 'Static · Single image', state: 'STATE 1',
+    summary: 'A single composed studio image — desk, sample swatches, mockups laid out, a Brand Guidelines book open. Caption: "There is no music in here. No pitch energy. Just decisions being made on details most people will never see." Connects culture to craft. The studio\'s quietness is the studio\'s confidence.',
+    visual: 'One editorial photograph. Monochrome or warm muted. Composition is intentional — grid-led. State 1.',
+    objective: 'Differentiate from the high-energy creative agency stereotype. Signals seriousness to corporate buyers without saying "serious."'
+  },
+  // WEEK 3 - ACTIVATION
+  { n: 11, day: 'MON', week: 3, weekName: 'ACTIVATION', img: 'img13', type: 'carousel',
+    title: 'Five sectors. One discipline.',
+    hook: 'What does the same studio look like across five sectors?',
+    platform: 'Instagram primary', pillar: 'Portfolio', format: 'Carousel · 6 slides', state: 'STATE 3',
+    summary: 'A range carousel pulling one piece of work from each sector — Corporate (Masarco / CXG), Finance & Real Estate (Orascom / SDB), Retail & F&B (NOBL / Reesh), Cultural (Diriyah Nights / Rare Manuscripts), Entertainment (BMW M5 / Children Culture Festival). Each slide shows the work and one line on the discipline applied. Final slide: "Different sectors. Same standard."',
+    visual: 'State 3. Each slide uses the actual brand colour of the project — but contained in a consistent editorial frame with the same typographic treatment. Demonstrates flexibility without losing the system.',
+    objective: 'Establish range across industries. Tells CMOs in any sector: "We\'ve worked at your scale, in your category."'
+  },
+  { n: 12, day: 'TUE', week: 3, weekName: 'ACTIVATION', img: 'img14', type: 'carousel',
+    title: 'When the work is institutional',
+    hook: 'Some brands are not products. They are institutions.',
+    platform: 'LinkedIn primary', pillar: 'Portfolio', format: 'Carousel · 6 slides', state: 'STATE 2',
+    summary: 'Focused on KSA institutional engagements — PIF PropTech, Saudi Law Conference, FNPOS II, Cityscape Global. Not a brag carousel. The argument: institutional brand work has a different operating logic than commercial work. Longer horizons, more stakeholders, regulatory weight, Arabic primacy. Slide 5: "Institutional brand work is governance, not graphic design." Slide 6: a quiet acknowledgment of the studio\'s regional capability.',
+    visual: 'State 2. Restrained. Heavy typography. Grid prominent. Use Arabic and English typography deliberately on the same slide. Monochrome with a single accent.',
+    objective: 'Claim authority on the most important regional brief. Speaks directly to government, semi-government, and Vision 2030 stakeholders.'
+  },
+  { n: 13, day: 'WED', week: 3, weekName: 'ACTIVATION', img: 'img15', type: 'static',
+    title: 'What we ask of every client',
+    hook: 'We work with clients, not for them.',
+    platform: 'LinkedIn', pillar: 'Social Proof', format: 'Static · Quote card', state: 'STATE 1',
+    summary: 'Drawn from the studio\'s own values, this is a partnership-principles post stating what B2CREATE asks of every client engagement. Three commitments stated as obligations: (1) Stay in the room. (2) Tell us when we\'re wrong. (3) Plan in decades, not quarters. Closes with: "This is not how every agency works. It is how we work." When real, attributable client testimonials become available, this slot converts to a quote card with named attribution.',
+    visual: 'State 1. Dark monochrome. Single statement in serif, generous space. Three numbered commitments below in tight grotesque. Grid system visible. No flourish.',
+    objective: 'Begin layering trust without unverifiable client praise. Risk-averse buyers see a studio that defines its terms publicly — a signal of seriousness.'
+  },
+  { n: 14, day: 'THU', week: 3, weekName: 'ACTIVATION', img: 'img16', type: 'reel',
+    title: 'What gets handed over',
+    hook: 'Every engagement ends with five artefacts.',
+    platform: 'Instagram + LinkedIn', pillar: 'Process', format: 'Reel · 20–25s', state: 'STATE 2 → STATE 3',
+    summary: 'A reel showing the five concrete deliverables produced across an engagement — written premise (Discovery), strategy document (Strategy), system manual (Identity), launch suite (Execution), stewardship contract (Continuity). Each appears as a real document on screen, briefly. End card: "Nothing is implicit."',
+    visual: 'State 2 → State 3. Real documents, top-down, kinetic. Monochrome. Type appears synchronised with each artefact reveal.',
+    objective: 'Convert "we work systematically" from claim to evidence. Most agencies say it. Few show it.'
+  },
+  { n: 15, day: 'FRI', week: 3, weekName: 'ACTIVATION', img: 'img17', type: 'static',
+    title: 'Diriyah Nights',
+    hook: 'Diriyah Nights. Cultural programming. Forty days.',
+    platform: 'Instagram', pillar: 'Portfolio', format: 'Static · Single hero image', state: 'STATE 3',
+    summary: 'A single editorial image of one piece of work, with a one-paragraph caption that explains the strategic premise behind it — not the design choices. What the brief was, what the audience was, what the work had to do. No process explanation. The image carries the rest.',
+    visual: 'State 3. One photograph, full frame. Editorial composition. Caption set in clean grotesque. The B2 mark in corner.',
+    objective: 'Hero a single piece of work to anchor the grid week. Signals confidence — one image, fully resolved.'
+  },
+  // WEEK 4 - CONTINUITY
+  { n: 16, day: 'MON', week: 4, weekName: 'CONTINUITY', img: 'img18', type: 'carousel',
+    title: 'We stay past launch',
+    hook: 'Most agencies leave at launch. The work is just beginning.',
+    platform: 'LinkedIn primary', pillar: 'Thinking', format: 'Carousel · 5 slides', state: 'STATE 2',
+    summary: 'A carousel arguing that launch day is the smallest day in the life of a brand. The real test is the next two years — when the work has to be used by people who weren\'t in the room when it was made. Slides: (2) what fails after launch — drift, dilution, and divergence; (3) the studio\'s continuity contract — quarterly system reviews, brand governance, long-horizon evolution; (4) examples of evolution under stewardship; (5) closing line — "The first launch is the smallest moment."',
+    visual: 'State 2. Heavy editorial typography. Each slide carries one statement and one image. Grid lines. Monochrome with a single accent shift between slides.',
+    objective: 'Differentiate on the after-sale relationship — the strongest retention argument in the agency category.'
+  },
+  { n: 17, day: 'TUE', week: 4, weekName: 'CONTINUITY', img: 'img19', type: 'carousel',
+    title: 'Three years inside the same brand',
+    hook: 'Three years. The same identity. Tested under pressure.',
+    platform: 'Instagram primary', pillar: 'Portfolio', format: 'Carousel · 5 slides', state: 'STATE 3',
+    summary: 'A carousel showing how a single brand has evolved across multiple campaigns and touchpoints under the studio\'s stewardship — not by being redesigned, but by being kept consistent under stress. Show the system in seasonal campaigns, new product launches, leadership changes. Argument: the system held.',
+    visual: 'State 3. Real artefacts across time. The same identity in different applications, side by side. Monochrome frame, brand colour preserved.',
+    objective: 'Prove continuity isn\'t theoretical. Counter the perception that long engagements are agency upsell.'
+  },
+  { n: 18, day: 'WED', week: 4, weekName: 'CONTINUITY', img: 'img20', type: 'static',
+    title: 'Three questions before you brief any agency',
+    hook: "If you're about to commission a brand engagement, ask these three questions first. Of yourself, before the agency.",
+    platform: 'LinkedIn', pillar: 'Thinking', format: 'Long-form text post', state: 'STATE 2',
+    summary: 'A short long-form post offering CMOs a self-diagnostic before they brief any agency. Three questions: (1) What does this organisation actually want to be remembered for? (2) Who will be stewarding this brand two years from now? (3) Is the problem we\'re solving a strategy problem, or a structure problem? Useful even if the reader never works with B2CREATE — which is the point. Trust before sale.',
+    visual: 'Optional single static — three numbered questions on dark background. State 2.',
+    objective: 'Highest-trust thought leadership of the month. Gives the audience a tool they can use in a budget meeting next week. Builds the studio\'s role as advisor, not vendor.'
+  },
+  { n: 19, day: 'THU', week: 4, weekName: 'CONTINUITY', img: 'img21', type: 'reel',
+    title: 'Studio in motion',
+    hook: 'What a month of work looks like.',
+    platform: 'Instagram + LinkedIn', pillar: 'Culture', format: 'Reel · 15s', state: 'STATE 1 → STATE 2',
+    summary: 'A premium studio-life reel — not behind-the-scenes in the casual sense, but a curated visual record of the month: desks, marks in production, proofs, conversations. No talking. No music drop. The reel closes the month visually.',
+    visual: 'State 1 → State 2. Real footage, monochromatic grade. Kinetic captions describing each shot. Composed, not casual.',
+    objective: 'Humanise the studio without breaking the editorial register. Closes the month with a quiet "we are here" signal.'
+  },
+  { n: 20, day: 'FRI', week: 4, weekName: 'CONTINUITY', img: 'img22', type: 'static',
+    title: 'Set in motion.',
+    hook: 'Everything begins as particles. Most things stay that way.',
+    platform: 'LinkedIn + Instagram', pillar: 'Thinking', format: 'Static · Closing manifesto', state: 'STATE 3',
+    summary: 'A closing post that returns to the opening premise. Reminds the audience of the four-week arc — stillness, structure, activation, continuity. Closes with the studio\'s own closing line from the company profile: "Set in motion." This makes the month itself a brand expression, not just a content plan.',
+    visual: 'State 3 — fully resolved. Editorial frame. The phrase "SET IN MOTION." in tight grotesque, large, on a black field with fine particles converging into a clear form. Mark in corner.',
+    objective: 'Close the loop. The audience has been moved through the brand\'s own thesis. This post doubles as the highest-share-potential closer of the month and the bridge into Month 2.'
+  }
+];
+
+// Inspiration board image map
+const INSPIRATIONS = {
+  wolff_olins: ['img23', 'img24', 'img25'],
+  pentagram: ['img26', 'img27', 'img28'],
+  studio_dumbar: ['img29', 'img30', 'img31', 'img32'],
+  manifesto: ['img33', 'img34'],
+  magazine: ['img35', 'img36', 'img37', 'img38', 'img39', 'img40', 'img41', 'img42']
+};
+
+// All images normalized to .jpg during optimization
+function imgExt(name) {
+  return 'jpg';
+}
+
+// ============================================================
+// RENDER POSTS
+// ============================================================
+function renderPosts() {
+  const grid = document.getElementById('posts-grid');
+  grid.innerHTML = POSTS.map(p => `
+    <div class="post-card ${p.type}" data-week="${p.week}" data-id="${p.n}">
+      <div class="post-card-tag">P${String(p.n).padStart(2, '0')} · ${p.day}</div>
+      <img class="post-img" src="assets/posts/${p.img}.${imgExt(p.img)}" alt="${p.title}" loading="lazy">
+      <div class="post-card-meta">
+        <div class="post-card-top">
+          <span>WK ${String(p.week).padStart(2, '0')} · ${p.weekName}</span>
+          <span>${p.state.split('—')[0].trim()}</span>
+        </div>
+        <div class="post-card-bottom">
+          <div class="title">${p.title}</div>
+          <div class="pillar">${p.pillar} · ${p.format}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// RENDER INSPIRATIONS
+// ============================================================
+function renderInspirations() {
+  Object.keys(INSPIRATIONS).forEach(key => {
+    const grid = document.querySelector(`[data-insp="${key}"]`);
+    if (!grid) return;
+    grid.innerHTML = INSPIRATIONS[key].map(img => `
+      <img src="assets/refs/${img}.${imgExt(img)}" alt="${key} reference" loading="lazy">
+    `).join('');
+  });
+}
+
+// ============================================================
+// FILTER POSTS
+// ============================================================
+function setupFilters() {
+  const buttons = document.querySelectorAll('#week-filter .filter-btn');
+  const cards = document.querySelectorAll('.post-card');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      cards.forEach(card => {
+        if (filter === 'all' || card.dataset.week === filter) {
+          card.hidden = false;
+        } else {
+          card.hidden = true;
+        }
+      });
+    });
+  });
+}
+
+// Week-cell filter shortcut
+function setupArcFilters() {
+  document.querySelectorAll('.arc-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const w = cell.dataset.week;
+      document.querySelector(`[data-filter="${w}"]`).click();
+      document.getElementById('posts').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function setupModal() {
+  const backdrop = document.getElementById('modal-backdrop');
+  const close = document.getElementById('modal-close');
+
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.post-card');
+    if (card) {
+      const id = parseInt(card.dataset.id);
+      const post = POSTS.find(p => p.n === id);
+      if (!post) return;
+      document.getElementById('m-num').textContent = `POST ${String(post.n).padStart(2, '0')} / ${post.day}`;
+      document.getElementById('m-state').textContent = post.state;
+      document.getElementById('m-platform').textContent = post.platform.toUpperCase();
+      document.getElementById('m-title').textContent = post.title;
+      document.getElementById('m-hook').textContent = '"' + post.hook + '"';
+      document.getElementById('m-pillar').textContent = post.pillar;
+      document.getElementById('m-format').textContent = post.format;
+      document.getElementById('m-week').textContent = `Week ${String(post.week).padStart(2, '0')} — ${post.weekName}`;
+      document.getElementById('m-day').textContent = post.day;
+      document.getElementById('m-summary').textContent = post.summary;
+      document.getElementById('m-visual').textContent = post.visual;
+      document.getElementById('m-objective').textContent = post.objective;
+      document.getElementById('m-img').src = `assets/posts/${post.img}.${imgExt(post.img)}`;
+      backdrop.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  });
+
+  function closeModal() {
+    backdrop.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  close.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+}
+
+// ============================================================
+// REVEAL ON SCROLL
+// ============================================================
+function setupReveals() {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
+
+  document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+}
+
+// ============================================================
+// PARTICLE BACKGROUND
+// ============================================================
+class ParticleField {
+  constructor(canvas, opts = {}) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.particles = [];
+    this.opts = Object.assign({
+      count: 280,
+      duskRatio: 0.15,
+      speed: 0.15,
+      mode: 'drift', // drift | converge
+      maxRadius: 1.4
+    }, opts);
+    this.resize();
+    this.spawn();
+    window.addEventListener('resize', () => { this.resize(); this.spawn(); });
+    this.t = 0;
+    this.loop();
+  }
+  resize() {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = this.canvas.clientWidth;
+    const h = this.canvas.clientHeight;
+    this.canvas.width = w * dpr;
+    this.canvas.height = h * dpr;
+    this.ctx.scale(dpr, dpr);
+    this.w = w;
+    this.h = h;
+    // adjust count for screen size
+    this.opts.count = Math.min(360, Math.floor((w * h) / 4500));
+  }
+  spawn() {
+    this.particles = [];
+    for (let i = 0; i < this.opts.count; i++) {
+      this.particles.push({
+        x: Math.random() * this.w,
+        y: Math.random() * this.h,
+        ox: Math.random() * this.w,
+        oy: Math.random() * this.h,
+        vx: (Math.random() - 0.5) * this.opts.speed,
+        vy: (Math.random() - 0.5) * this.opts.speed,
+        r: Math.random() * this.opts.maxRadius + 0.3,
+        warm: Math.random() < this.opts.duskRatio,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+  loop() {
+    this.t += 0.005;
+    this.ctx.clearRect(0, 0, this.w, this.h);
+    const cx = this.w / 2;
+    const cy = this.h * 0.65;
+    for (const p of this.particles) {
+      if (this.opts.mode === 'converge') {
+        // attract toward focal point with slight orbital
+        const dx = cx - p.x;
+        const dy = cy - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) + 1;
+        p.vx += (dx / dist) * 0.005;
+        p.vy += (dy / dist) * 0.005;
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+      } else {
+        // ambient drift
+        p.vx += (Math.random() - 0.5) * 0.005;
+        p.vy += (Math.random() - 0.5) * 0.005;
+        p.vx = Math.max(-0.3, Math.min(0.3, p.vx));
+        p.vy = Math.max(-0.3, Math.min(0.3, p.vy));
+      }
+      p.x += p.vx;
+      p.y += p.vy;
+      // wrap
+      if (p.x < 0) p.x = this.w;
+      if (p.x > this.w) p.x = 0;
+      if (p.y < 0) p.y = this.h;
+      if (p.y > this.h) p.y = 0;
+
+      const pulse = Math.sin(this.t * 2 + p.phase) * 0.3 + 0.7;
+      const r = p.r * pulse;
+      const alpha = (p.warm ? 0.85 : 0.55) * pulse;
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      this.ctx.fillStyle = p.warm
+        ? `rgba(205, 186, 178, ${alpha})`
+        : `rgba(208, 206, 201, ${alpha})`;
+      this.ctx.fill();
+    }
+    requestAnimationFrame(() => this.loop());
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', () => {
+  renderPosts();
+  renderInspirations();
+  setupFilters();
+  setupArcFilters();
+  setupModal();
+  setupReveals();
+
+  // Particle backgrounds
+  new ParticleField(document.getElementById('particle-canvas'), { mode: 'drift', count: 280 });
+  new ParticleField(document.getElementById('closer-canvas'), { mode: 'converge', count: 320 });
+
+  // Hide loader after a beat
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('done');
+  }, 1600);
+});
+</script>
+</body>
+</html>
